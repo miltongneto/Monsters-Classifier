@@ -4,10 +4,9 @@ import pandas as pd
 from collections import Counter
 
 class Analyzer(object):
-
-    def readFiles(self):
-        self.train_set = pd.read_csv('train.csv', header=0, index_col=None)
-        return
+    
+    def __init__(self, train_set):
+        self.train_set = train_set
 
     def histogram(self):
         labels = self.train_set.drop('id', axis=1)
@@ -48,11 +47,14 @@ class Analyzer(object):
         y = labels['rotting_flesh']
         plt.scatter(x, y, s=area, c=colors)
         plt.show()
-    
 
-analyzer = Analyzer()
-analyzer.readFiles()
-analyzer.histogram()
-analyzer.barCategoricalData()
-analyzer.classBalance()
-#analyzer.distributionAttributes()
+    def verifyMissValues(self):
+        columnsWithNaN = self.train_set.isnull().any()
+        print(columnsWithNaN)
+    
+    def process(self):
+        self.verifyMissValues()
+        self.histogram()
+        self.barCategoricalData()
+        self.classBalance()
+        self.distributionAttributes()
