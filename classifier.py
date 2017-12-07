@@ -50,7 +50,7 @@ class Classifier(object):
 
     def findBestParameters(self):
         params = {'solver': ['adam', 'sgd'], 'activation': ['relu', 'tanh'], 'max_iter': [800, 1200, 1500], 'alpha': [0.0001, 0.01, 0.1], 'hidden_layer_sizes': np.arange(4, 10)}
-        clf_grid = GridSearchCV(estimator=MLPClassifier(), param_grid=params, scoring='accuracy', cv=5)
+        clf_grid = GridSearchCV(estimator=MLPClassifier(), param_grid=params, scoring='accuracy', cv=5) 
         clf_grid.fit(self.train_set_features, self.train_set_labels)
 
         print(clf_grid.best_score_)
@@ -69,7 +69,8 @@ class Classifier(object):
 
         return test_labels, predict
 
-    def classification(self):
+    def compareModels(self):
+        print("Comparing models...")
         print("Random Forest:")
         clf = RandomForestClassifier(criterion="entropy", n_jobs=-1)
         scores = cross_val_score(clf, self.train_set_features, self.train_set_labels, cv=10, scoring="accuracy")
@@ -81,10 +82,11 @@ class Classifier(object):
         print(np.mean(scores))
 
         print("MLP")
-        clf = MLPClassifier(solver='adam', hidden_layer_sizes=(9,), max_iter=800, alpha=0.01)
+        clf = MLPClassifier(solver='adam', hidden_layer_sizes=(7,), max_iter=1000, alpha=0.0001)
         scores = cross_val_score(clf, self.train_set_features, self.train_set_labels, cv=10, scoring='accuracy')
         print(np.mean(scores))
 
+    def classification(self):
         clf = MLPClassifier(solver='adam', hidden_layer_sizes=(9,), max_iter=800, alpha=0.01)
         clf.fit(self.train_set_features, self.train_set_labels)
         predict = clf.predict(self.test_set_features)
@@ -94,4 +96,5 @@ class Classifier(object):
 
     def execute(self):
         self.preProcess()
+        self.compareModels()
         return self.classification()

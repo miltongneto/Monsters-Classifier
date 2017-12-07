@@ -43,13 +43,17 @@ class Analyzer(object):
         plt.show()
     
     def distributionAttributes(self):
-        labels = self.train_set.drop(['id','bone_length','hair_length','has_soul','color'], axis=1)
-        colors = ("red", "green", "blue")
-        area = np.pi*2
-        x = labels['type']
-        y = labels['rotting_flesh']
-        plt.scatter(x, y, s=area, c=colors)
-        plt.show()
+        # generate color distribution for each class
+        sns.factorplot("type", col="color", col_wrap=4, data=self.train_set, kind="count", size=2.4, aspect=.8)
+        
+        # generate numerical attribute distribution for each class
+        fig = plt.figure(figsize=(8, 8))
+        idx = 1
+        numeric_columns = ['bone_length', 'rotting_flesh', 'hair_length', 'has_soul']
+        for f in numeric_columns:
+            ax = fig.add_subplot(2, len(numeric_columns) / 2, idx)
+            idx += 1
+            sns.boxplot(x='type', y=f, data=self.train_set, palette='muted', ax=ax)
 
     def verifyMissValues(self):
         print("Missing data:")
@@ -65,17 +69,17 @@ class Analyzer(object):
 
     def evaluate(self, labels, predict):
         score = accuracy_score(labels, predict)
-        print("Accuracy : %f", score)
+        print("Accuracy: ", score)
         self.showConfusionMatrix(labels, predict)
         #self.showROCCurve(labels, predict)
 
     def showConfusionMatrix(self, labels, predict):
         cm = confusion_matrix(labels,predict,labels=self.classes)
-        print(cm)
         sns.heatmap(cm,annot=True, xticklabels=self.classes, yticklabels=self.classes, cmap="Blues").set(xlabel = "Predicted Class", ylabel = "True Class", title = "Confusion Matrix")
         plt.show()
 
     def showROCCurve(self, labels, predict):
+        # Generate ROC Curve, incomplete. Not used
         fpr = dict()
         tpr = dict()
         roc_auc = dict()
@@ -90,25 +94,25 @@ class Analyzer(object):
         #     fpr[i], tpr[i], _ = roc_curve(teste[:, i], teste2[:, i])
         #     roc_auc[i] = auc(fpr[i], tpr[i])
         
-        colors = cycle(['aqua', 'darkorange', 'cornflowerblue'])
-        for i, color in zip(range(len(self.classes)), colors):
-            plt.plot(fpr[i], tpr[i], color=color, lw=2,
-            label='ROC curve of class {0} (area = {1:0.2f})'
-            ''.format(i, roc_auc[i]))
-        plt.plot([0, 1], [0, 1], 'k--', lw=lw)
-        plt.xlim([0.0, 1.0])
-        plt.ylim([0.0, 1.05])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.legend(loc="lower right")
-        plt.show()
+        # colors = cycle(['aqua', 'darkorange', 'cornflowerblue'])
+        # for i, color in zip(range(len(self.classes)), colors):
+        #     plt.plot(fpr[i], tpr[i], color=color, lw=2,
+        #     label='ROC curve of class {0} (area = {1:0.2f})'
+        #     ''.format(i, roc_auc[i]))
+        # plt.plot([0, 1], [0, 1], 'k--', lw=lw)
+        # plt.xlim([0.0, 1.0])
+        # plt.ylim([0.0, 1.05])
+        # plt.xlabel('False Positive Rate')
+        # plt.ylabel('True Positive Rate')
+        # plt.legend(loc="lower right")
+        # plt.show()
             
 
     def process(self):
         self.verifyMissValues()
+        self.distributionAttributes()
         self.histogram()
         self.barCategoricalData()
         self.classBalance()
-        # self.distributionAttributes()
         self.pairs()
 
